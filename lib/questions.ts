@@ -56,7 +56,7 @@ async function getVoteSummaries(questionIds: string[], voterId?: string) {
   if (questionIds.length === 0) return {};
 
   const { data, error } = await supabase
-    .from<VoteRow>("votes")
+    .from("votes")
     .select("question_id, direction, voter_id")
     .in("question_id", questionIds);
 
@@ -64,7 +64,7 @@ async function getVoteSummaries(questionIds: string[], voterId?: string) {
     throw new Error(error.message);
   }
 
-  return summarizeVotes(data ?? [], voterId);
+  return summarizeVotes((data ?? []) as VoteRow[], voterId);
 }
 
 function normalizeQuestion(row: QuestionRow, summary: VoteSummary | undefined) {
@@ -90,7 +90,7 @@ export async function getQuestionsPage(
 ) {
   const sortFields = buildSort(sort);
   let query = supabase
-    .from<QuestionRow>("questions")
+    .from("questions")
     .select("id, body, author, author_id, pinned, has_poll, created_at")
     .order(sortFields[0].column, { ascending: sortFields[0].ascending })
     .order(sortFields[1].column, { ascending: sortFields[1].ascending })
@@ -99,7 +99,7 @@ export async function getQuestionsPage(
   const { data, error } = await query;
   if (error) throw new Error(error.message);
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as QuestionRow[];
   const hasMore = rows.length > limit;
   const pageRows = rows.slice(0, limit);
   const questionIds = pageRows.map((q) => q.id);
@@ -119,7 +119,7 @@ export async function searchQuestions(
 ) {
   const sortFields = buildSort(sort);
   const { data, error } = await supabase
-    .from<QuestionRow>("questions")
+    .from("questions")
     .select("id, body, author, author_id, pinned, has_poll, created_at")
     .textSearch("body", q, { type: "websearch", config: "english" })
     .order(sortFields[0].column, { ascending: sortFields[0].ascending })
@@ -128,7 +128,7 @@ export async function searchQuestions(
 
   if (error) throw new Error(error.message);
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as QuestionRow[];
   const questionIds = rows.map((q) => q.id);
   const voteSummaries = await getVoteSummaries(questionIds, voterId);
 
