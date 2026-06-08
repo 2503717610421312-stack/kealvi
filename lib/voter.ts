@@ -1,4 +1,8 @@
 export function getVoterId(): string {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+    return "";
+  }
+
   const userJson = localStorage.getItem("liveqa_user");
   if (userJson) {
     try {
