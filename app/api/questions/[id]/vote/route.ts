@@ -31,10 +31,10 @@ export async function POST(
 
   const { error } = await supabase
     .from("votes")
-    .upsert(
-      { question_id: questionId, voter_id: voterId, direction },
-      { onConflict: ["question_id", "voter_id"] }
-    );
+   .upsert(
+  { question_id: questionId, voter_id: voterId, direction },
+  { onConflict: "question_id,voter_id" }
+);
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
